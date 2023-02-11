@@ -87,7 +87,7 @@
             [
                 "2dc98bc11e5e233a",
                 "6db1b82c619bc3a4",
-                "47c507567a8c7d3c"
+                "5f29713669761d4d"
             ]
         ]
     },
@@ -121,7 +121,7 @@
         "userProps": "",
         "correl": "",
         "expiry": "",
-        "broker": "3d0581966d010574",
+        "broker": "730f046c32ab6e23",
         "x": 1340,
         "y": 240,
         "wires": []
@@ -151,7 +151,7 @@
         "type": "debug",
         "z": "96f7ee8f3734316a",
         "name": "msg",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -174,28 +174,10 @@
         "y": 320,
         "wires": [
             [
-                "9fcfec136d47b1e2",
                 "e112365bc6c19da1",
                 "f75e845b5699c2de"
             ]
         ]
-    },
-    {
-        "id": "9fcfec136d47b1e2",
-        "type": "debug",
-        "z": "96f7ee8f3734316a",
-        "name": "msg encoded",
-        "active": false,
-        "tosidebar": true,
-        "console": false,
-        "tostatus": false,
-        "complete": "payload",
-        "targetType": "msg",
-        "statusVal": "",
-        "statusType": "auto",
-        "x": 1340,
-        "y": 400,
-        "wires": []
     },
     {
         "id": "e112365bc6c19da1",
@@ -217,7 +199,7 @@
         "type": "debug",
         "z": "96f7ee8f3734316a",
         "name": "msg decoded",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -261,8 +243,8 @@
         "correl": "",
         "expiry": "",
         "broker": "3d0581966d010574",
-        "x": 1150,
-        "y": 480,
+        "x": 1550,
+        "y": 400,
         "wires": []
     },
     {
@@ -270,17 +252,18 @@
         "type": "function",
         "z": "96f7ee8f3734316a",
         "name": "STATE template",
-        "func": "var timestamp = Date.now();\n\nmsg.payload = {\n    \"online\": true,\n    \"timestamp\": timestamp,\n};\n\nreturn msg;",
+        "func": "var deviceTimestamp = msg.payload.deviceTimestamp;\nvar refTimestamp = msg.payload.refTimestamp;\nvar online = false;\nvar diff = Math.abs(refTimestamp - deviceTimestamp);\n\nif (diff < 7500) { // 7,5 sec\n    online = true;\n};\n\nmsg.payload = {\n    \"online\": online,\n    \"timestamp\": refTimestamp,\n};\n\nreturn msg;",
         "outputs": 1,
         "noerr": 0,
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 900,
+        "x": 1320,
         "y": 400,
         "wires": [
             [
-                "6424c3bb63e0b097"
+                "6424c3bb63e0b097",
+                "1ea055dadca6faa0"
             ]
         ]
     },
@@ -298,8 +281,101 @@
         "correl": "",
         "expiry": "",
         "broker": "730f046c32ab6e23",
-        "x": 1140,
+        "x": 1540,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "5f29713669761d4d",
+        "type": "function",
+        "z": "96f7ee8f3734316a",
+        "name": "timestamp device",
+        "func": "var timestamp = Date.now();\n\nmsg.payload = timestamp;\nmsg.topic = \"deviceTimestamp\";\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 910,
         "y": 400,
+        "wires": [
+            [
+                "e521289f4e341fbf"
+            ]
+        ]
+    },
+    {
+        "id": "19e76e1af348b7be",
+        "type": "inject",
+        "z": "96f7ee8f3734316a",
+        "name": "ref timestamp",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "2",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "refTimestamp",
+        "payload": "",
+        "payloadType": "date",
+        "x": 920,
+        "y": 480,
+        "wires": [
+            [
+                "e521289f4e341fbf"
+            ]
+        ]
+    },
+    {
+        "id": "e521289f4e341fbf",
+        "type": "join",
+        "z": "96f7ee8f3734316a",
+        "name": "",
+        "mode": "custom",
+        "build": "object",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": true,
+        "timeout": "",
+        "count": "1",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "num",
+        "reduceFixup": "",
+        "x": 1130,
+        "y": 400,
+        "wires": [
+            [
+                "47c507567a8c7d3c"
+            ]
+        ]
+    },
+    {
+        "id": "1ea055dadca6faa0",
+        "type": "debug",
+        "z": "96f7ee8f3734316a",
+        "name": "state",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1290,
+        "y": 480,
         "wires": []
     }
 ]
